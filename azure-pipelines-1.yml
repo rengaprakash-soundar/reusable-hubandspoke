@@ -1,0 +1,62 @@
+stages:
+  - stage: validate
+    jobs:
+      - job: validate
+        continueOnError: false
+        steps:
+        - task: TerraformInstaller@0
+          displayName: 'install'
+          inputs:
+            terraformVersion: '0.14.5'
+        - task: TerraformTaskV1@0
+          displayName: 'terrraform init'
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            backendServiceArm: 'Azure subscription 1(485a5260-a737-439f-82c9-d22080190b73)'
+            backendAzureRmResourceGroupName: 'backend'
+            backendAzureRmStorageAccountName: 'terraformstate12'
+            backendAzureRmContainerName: 'state12'
+            backendAzureRmKey: 'terraform.tfstate'
+        - task: TerraformTaskV1@0
+          displayName: 'Terraform validate'
+          inputs:
+            provider: 'azurerm'
+            command: 'validate'
+  - stage: deploy
+    jobs:
+    - deployment: deploy_hubandspoke
+      continueOnError: false
+      environment: 'prod'
+      strategy:
+       runOnce:
+         deploy:
+           steps:
+             - checkout: self
+             - task: TerraformInstaller@0
+               displayName: 'install'
+               inputs:
+                terraformVersion: '0.14.5' 
+             - task: TerraformTaskV1@0
+               displayName: 'init'
+               inputs:
+                 provider: 'azurerm'
+                 command: 'init'
+                 backendServiceArm: 'Azure subscription'
+                 backendAzureRmResourceGroupName: 'backend'
+                 backendAzureRmStorageAccountName: 'terraformstate12'
+                 backendAzureRmContainerName: 'state12'
+                 backendAzureRmKey: 'terraform.tfstate'
+             - task: TerraformTaskV1@0
+               displayName: 'plan'
+               inputs:
+                 provider: 'azurerm'
+                 command: 'plan'
+                 environmentServiceNameAzureRM: 'Azure subscription' 
+             - task: TerraformTaskV1@0
+               displayName: 'apply'
+               inputs:
+                 provider: 'azurerm'
+                 command: 'apply'
+                 environmentServiceNameAzureRM: 'Azure subscription 1(485a5260-a737-439f-82c9-d22080190b73)'
+              

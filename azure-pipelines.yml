@@ -52,10 +52,10 @@ stages:
                inputs:
                  provider: 'azurerm'
                  command: 'plan'
-                 environmentServiceNameAzureRM: 'azure1'
+                 environmentServiceNameAzureRM: 'Rengaprakash'
              - task: TerraformTaskV1@0
                displayName: 'apply'
                inputs:
                  provider: 'azurerm'
                  command: 'apply'
-                 environmentServiceNameAzureRM: 'azure1'
+                 environmentServiceNameAzureRM: 'Rengaprakash'
